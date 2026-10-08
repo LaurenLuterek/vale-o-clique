@@ -11,7 +11,6 @@ export async function onRequestGet(context) {
     "https://valeoclique.pages.dev/api/mercadolivre/callback";
 
   const state = crypto.randomUUID();
-
   const codeVerifier = crypto.randomUUID() + crypto.randomUUID();
 
   const data = new TextEncoder().encode(codeVerifier);
@@ -24,6 +23,14 @@ export async function onRequestGet(context) {
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 
+  // Guarda os dados temporariamente em cookie seguro.
+  const cookieValue = encodeURIComponent(
+    JSON.stringify({
+      state,
+      codeVerifier,
+    })
+  );
+
   const authUrl = new URL(
     "https://auth.mercadolivre.com.br/authorization"
   );
@@ -35,5 +42,11 @@ export async function onRequestGet(context) {
   authUrl.searchParams.set("code_challenge", codeChallenge);
   authUrl.searchParams.set("code_challenge_method", "S256");
 
-  return Response.redirect(authUrl.toString(), 302);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: authUrl.toString(),
+      "Set-Cookie": `ML_OAUTH=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/api/mercadolivre; Max-Age=600`,
+    },
+  });
 }
