@@ -64,7 +64,7 @@ export async function onRequestGet(context) {
   }
 
   const response = await fetch(
-    `https://api.mercadolibre.com/applications/${appId}`,
+    `https://api.mercadolibre.com/applications/${appId}/grants`,
     {
       method: "GET",
       headers: {
@@ -80,7 +80,7 @@ export async function onRequestGet(context) {
     JSON.stringify(
       {
         status: response.status,
-        aplicativo: data,
+        grants: data,
       },
       null,
       2
