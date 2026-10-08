@@ -51,6 +51,9 @@ export async function onRequestGet(context) {
   } catch {
     return new Response("Dados de autorização inválidos.", {
       status: 400,
+      headers: {
+        "content-type": "text/html; charset=UTF-8",
+      },
     });
   }
 
@@ -59,6 +62,9 @@ export async function onRequestGet(context) {
       "Falha de segurança: o estado da autorização não confere.",
       {
         status: 400,
+        headers: {
+          "content-type": "text/html; charset=UTF-8",
+        },
       }
     );
   }
@@ -71,6 +77,9 @@ export async function onRequestGet(context) {
       "Credenciais do Mercado Livre não configuradas no Cloudflare.",
       {
         status: 500,
+        headers: {
+          "content-type": "text/html; charset=UTF-8",
+        },
       }
     );
   }
@@ -115,11 +124,16 @@ export async function onRequestGet(context) {
     );
   }
 
+  await context.env.ML_TOKENS.put(
+    "mercadolivre",
+    JSON.stringify(tokenData)
+  );
+
   return new Response(
     `
       <h2>Mercado Livre conectado! 🎉</h2>
       <p>A autorização foi concluída com sucesso.</p>
-      <p>Seu Vale o Clique já recebeu a autorização necessária para acessar a API.</p>
+      <p>Os dados de autorização foram armazenados com segurança.</p>
     `,
     {
       status: 200,
