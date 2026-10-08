@@ -47,27 +47,15 @@ export async function onRequestGet(context) {
     );
   }
 
-  const meResponse = await fetch(
-    "https://api.mercadolibre.com/users/me",
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${tokens.access_token}`,
-        Accept: "application/json",
-      },
-    }
-  );
+  const appId = context.env.ML_CLIENT_ID;
 
-  const meData = await meResponse.json();
-
-  if (!meResponse.ok) {
+  if (!appId) {
     return new Response(
       JSON.stringify({
-        erro: "Não foi possível identificar o usuário.",
-        detalhes: meData,
+        erro: "ML_CLIENT_ID não configurado.",
       }),
       {
-        status: meResponse.status,
+        status: 500,
         headers: {
           "content-type": "application/json; charset=UTF-8",
         },
@@ -75,10 +63,8 @@ export async function onRequestGet(context) {
     );
   }
 
-  const userId = meData.id || meData.user_id;
-
-  const grantsResponse = await fetch(
-    `https://api.mercadolibre.com/users/${userId}/applications`,
+  const response = await fetch(
+    `https://api.mercadolibre.com/applications/${appId}`,
     {
       method: "GET",
       headers: {
@@ -88,20 +74,19 @@ export async function onRequestGet(context) {
     }
   );
 
-  const grantsData = await grantsResponse.json();
+  const data = await response.json();
 
   return new Response(
     JSON.stringify(
       {
-        user_id: userId,
-        status: grantsResponse.status,
-        aplicativos: grantsData,
+        status: response.status,
+        aplicativo: data,
       },
       null,
       2
     ),
     {
-      status: grantsResponse.ok ? 200 : grantsResponse.status,
+      status: response.ok ? 200 : response.status,
       headers: {
         "content-type": "application/json; charset=UTF-8",
       },
