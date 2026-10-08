@@ -47,8 +47,14 @@ export async function onRequestGet(context) {
     );
   }
 
+  const categoryId =
+    new URL(context.request.url).searchParams.get("category") ||
+    "MLB1055";
+
   const response = await fetch(
-    "https://api.mercadolibre.com/highlights/MLB",
+    `https://api.mercadolibre.com/highlights/MLB/category/${encodeURIComponent(
+      categoryId
+    )}`,
     {
       method: "GET",
       headers: {
@@ -64,6 +70,7 @@ export async function onRequestGet(context) {
     JSON.stringify(
       {
         status: response.status,
+        categoria: categoryId,
         resultado: data,
       },
       null,
